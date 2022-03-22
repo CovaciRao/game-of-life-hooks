@@ -2,8 +2,8 @@ import React, { useCallback, useRef, useState } from 'react';
 import produce from 'immer';
 import './App.css';
 
-const numRows = 50;
-const numCols = 50;
+const numRows = 30;
+const numCols = 30;
 const operations = [
   [0, 1],
   [0, -1],
@@ -15,13 +15,17 @@ const operations = [
   [-1, -1],
 ];
 
+const generateEmptyGrid = () => {
+  const rows = [];
+  for (let i = 0; i < numRows; i++) {
+    rows.push(Array.from(Array(numCols), () => 0))
+  }
+  return rows;
+}
+
 const App: React.FC = () => {
   const [grid, setGrid] = useState(() => {
-    const rows = [];
-    for (let i = 0; i < numRows; i++) {
-      rows.push(Array.from(Array(numCols), () => 0))
-    }
-    return rows;
+    return generateEmptyGrid();
   });
 
   const[inProgress, setInProgress] = useState(false);
@@ -49,13 +53,15 @@ const App: React.FC = () => {
 
             if(neighborns < 2 || neighborns > 3) {
               gridCopy[i][j] = 0;
+            } else if(g[i][j] == 0 && neighborns == 3) {
+              gridCopy[i][j] = 1;
             }
           }
         }
       })
     })
 
-    setTimeout(runGame, 1000);
+    setTimeout(runGame, 500);
   }, []) 
 
   return (
@@ -63,9 +69,18 @@ const App: React.FC = () => {
     <button 
       onClick={() => {
         setInProgress(!inProgress);
+        if(!inProgress) {
+          inProgressRef.current = true;
+          runGame();
+        }
       }}
      >
       {inProgress ? 'Stop' : 'Start'}
+    </button>
+    <button onClick={() => {
+      setGrid(generateEmptyGrid());
+    }}>
+      Clear
     </button>
     <div
       style={{
